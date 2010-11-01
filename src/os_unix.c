@@ -4775,6 +4775,7 @@ mch_start_async_shell(ctx)
 	MSG_PUTS(_("\nCannot create pipe\n"));
 	goto error_pipe;
     }
+
     pipe_error = (pipe(fd_toshell) < 0);
     if (pipe_error) {
 	MSG_PUTS(_("\nCannot create pipe\n"));
@@ -4894,7 +4895,6 @@ async_call_receive(ctx, data, len)
 # endif
 #endif
 
-
     /* prepare argument. If flag ACF_LINELIST (aslines) is set pass a list */
 
     // it looks like copy_tv copying the string. So I hope this is safe to do ..
@@ -4906,10 +4906,7 @@ async_call_receive(ctx, data, len)
     vim_memset(&funcrettv, 0, sizeof(typval_T));
 
     async_call_func(&ctx->tv_dict, "receive", 2, &funcargv[0]);
-
 }
-
-
 
     static void
 handle_one_async_task (ctx)
@@ -4954,7 +4951,7 @@ handle_one_async_task (ctx)
 	    // TODO: again, needs better handling
 
 	    // TODO: convert above waitpid's to be compatible with wait4()
-        }
+	}
 
         // for debugging purposes
         dict_add_nr_str(ctx->tv_dict.vval.v_dict, "kill_signal_sent", 1, NULL);
@@ -4965,7 +4962,6 @@ handle_one_async_task (ctx)
         async_call_func(&ctx->tv_dict, "terminated", 0, (typval_T *) NULL);
 
 	free_async_ctx(ctx);
-
     }
 }
 

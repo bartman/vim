@@ -7677,7 +7677,6 @@ static struct fst
     {"async_kill",	1, 1, f_async_kill},
     {"async_list",	0, 0, f_async_list},
     {"async_write",	2, 2, f_async_write},
-    // {"async_read_until",1, 1, f_async_read_until},
 #endif
 #ifdef FEAT_FLOAT
     {"atan",		1, 1, f_atan},
@@ -17418,7 +17417,7 @@ done:
 
 #ifdef FEAT_ASYNC
 /*
- * "asystem({ctx})" function
+ * "async_exec({ctx})" function
  * see ../runtime/doc/async.txt
  * returns 0 on failure, pid on success
  */
@@ -17437,9 +17436,8 @@ f_async_exec(argvars, rettv)
     if (check_restricted() || check_secure())
 	goto done;
 
-    if (!async_assert_ctx(viml_ctx)){
-        goto done;
-    }
+    if (!async_assert_ctx(viml_ctx))
+	goto done;
 
     ctx = alloc_async_ctx();
     if (!ctx) {
@@ -17453,7 +17451,6 @@ f_async_exec(argvars, rettv)
     /* refcount the dict we were given */
     copy_tv(viml_ctx, &ctx->tv_dict);
 
-done_parsing:
 
     // not locking ctx->tv_dict
     // so that users can add state to the VimL context easily
@@ -17479,7 +17476,7 @@ done:
 }
 
 /*
- * "getasyncpids()" function
+ * "async_list()" function
  * returns list of numbers representing PIDs of async processes
  */
     static void
@@ -17497,8 +17494,6 @@ f_async_list (argvars, rettv)
 	    break;
     }
 }
-
-
 
 /*
  * "async_kill({ctx})" function
