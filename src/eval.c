@@ -17545,7 +17545,7 @@ f_async_write (argvars, rettv)
 }
 
 // call a callback
-void async_call_func(viml_ctx, name, argcount, argvars)
+void call_async_callback(viml_ctx, name, argcount, argvars)
     typval_T * viml_ctx;
     u_char * name;
     int argcount;
@@ -17600,7 +17600,7 @@ start_async_task(async_ctx)
 
     if (pid < 0) return 0;
     dict_add_nr_str(viml_ctx->vval.v_dict, "pid", pid, NULL);
-    async_call_func(viml_ctx, "started", 0, NULL);
+    call_async_callback(viml_ctx, "started", 0, NULL);
 
 
 #else /* don't HAVE_ASYNC_SHELL, fake it */
