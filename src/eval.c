@@ -17427,8 +17427,9 @@ f_async_exec(argvars, rettv)
     typval_T	*rettv;
 {
     int		pid = -1;
-    typval_T* viml_ctx;
+    typval_T	*viml_ctx;
     async_ctx_T *ctx = NULL;
+    dictitem_T	*di;
 
     viml_ctx = &argvars[0];
 
@@ -17444,8 +17445,20 @@ f_async_exec(argvars, rettv)
 	goto done;
     }
 
-    if (dict_find(viml_ctx->vval.v_dict, (char_u*)"aslines" , -1))
+    di = dict_find(viml_ctx->vval.v_dict, (char_u*)"aslines" , -1);
+    if (di)
 	ctx->flags |= ACF_LINELIST;
+
+    di = dict_find(viml_ctx->vval.v_dict, (char_u*)"outtobufnr" , -1);
+    if (di) {
+	int error = FALSE;
+	ctx->flags |= ACF_OUTTOBUF;
+	ctx->bufnr = get_tv_number_chk(&di->di_tv, &error);
+	if (error) {
+	    EMSG(_("E999: async_exec: outtobufnr value must be a number"));
+	    goto done;
+	}
+    }
 
     /* copy and refcount the vimL dict we were given */
     copy_tv(viml_ctx, &ctx->tv_dict);
@@ -17548,7 +17561,7 @@ f_async_write (argvars, rettv)
     }
 
     if (argvars[2].v_type != VAR_UNKNOWN) {
-	int error;
+	int error = FALSE;
 	fd = get_tv_number_chk(&argvars[2], &error);
 	if (error)
 	    goto done;
@@ -17599,7 +17612,9 @@ call_async_callback(ctx, name, argcount, argvars)
 
     f = async_value_from_ctx(viml_ctx, name);
     if (!f || f->v_type != VAR_FUNC) {
-	EMSG(_("E999: async: callable function expected"));
+	if (!f || f->v_type != VAR_UNKNOWN)
+	    EMSG2(_("E999: async: '%s' is not a function"),
+		    name);
 	return;
     }
 
